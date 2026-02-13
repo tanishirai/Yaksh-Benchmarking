@@ -1,0 +1,46 @@
+======================================================================
+COMPLETE DATA CONSOLIDATION SUMMARY
+======================================================================
+
+Sources:
+  1. Questions: data/raw/yaksh_100_qns.csv
+  2. Manual labels: data/manual_labels/manual_labels_cleaned.csv
+  3. Model predictions: ['results_run1', 'results_run2'] × ['single', 'multi']
+
+Output: data/processed/yaksh_100_qns_consolidated.csv
+
+Dataset structure:
+  Total questions: 100
+  Original columns: 4
+  Model prediction columns: 24
+  Total columns: 28
+
+All columns:
+  - Sr. no.
+  - question__description
+  - answer
+  - manual_categories
+  - results_run1_single_anthropic_claude-sonnet-4.5
+  - results_run1_single_deepseek_deepseek-v3.2
+  - results_run1_single_google_gemini-2.5-flash
+  - results_run1_single_openai_gpt-5.2
+  - results_run1_single_openai_gpt-oss-120b
+  - results_run1_single_qwen_qwen3-coder
+  - results_run1_multi_anthropic_claude-sonnet-4.5
+  - results_run1_multi_deepseek_deepseek-v3.2
+  - results_run1_multi_google_gemini-2.5-flash
+  - results_run1_multi_openai_gpt-5.2
+  - results_run1_multi_openai_gpt-oss-120b
+  - results_run1_multi_qwen_qwen3-coder
+  - results_run2_single_anthropic_claude-sonnet-4.5
+  - results_run2_single_deepseek_deepseek-v3.2
+  - results_run2_single_google_gemini-2.5-flash
+  - results_run2_single_openai_gpt-5.2
+  - results_run2_single_openai_gpt-oss-120b
+  - results_run2_single_qwen_qwen3-coder
+  - results_run2_multi_anthropic_claude-sonnet-4.5
+  - results_run2_multi_deepseek_deepseek-v3.2
+  - results_run2_multi_google_gemini-2.5-flash
+  - results_run2_multi_openai_gpt-5.2
+  - results_run2_multi_openai_gpt-oss-120b
+  - results_run2_multi_qwen_qwen3-coder

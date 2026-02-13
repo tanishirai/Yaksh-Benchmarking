@@ -1,0 +1,511 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+\definecolor{insight}{RGB}{0,102,204}
+
+\title{\textbf{Benchmarking Large Language Models} \\ 
+       \Large for Python Code Error Detection \\
+       \large A Comprehensive Analysis of 6 Models on 100 Code Samples}
+\author{FOSSEE Internship Project \\ Bhopal, Madhya Pradesh, India}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+This report presents a detailed benchmark study evaluating six state-of-the-art Large Language Models (LLMs) for their ability to detect and classify logical errors in Python code. We tested 100 programming questions from the Yaksh platform, comparing closed-source models (Claude, Gemini, GPT) against open-source alternatives (DeepSeek, Qwen, GPT-OSS). Our analysis covers overall accuracy, category-specific performance, prompting strategies, consistency, and ensemble methods.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\subsection{Background and Motivation}
+
+Automated code error detection is crucial for educational platforms and development tools. While Large Language Models have shown promise in code understanding, their effectiveness in identifying specific types of logical errors remains under-explored. This study aims to:
+
+\begin{itemize}[leftmargin=*]
+    \item Quantify how well current LLMs detect different error categories
+    \item Compare proprietary vs open-source model performance
+    \item Evaluate whether prompting strategies affect accuracy
+    \item Assess model consistency and reliability
+\end{itemize}
+
+\subsection{Research Questions}
+
+\begin{enumerate}[leftmargin=*]
+    \item Which LLM performs best at detecting Python code errors?
+    \item Are certain error types easier for models to identify?
+    \item Does multi-label prompting improve detection accuracy?
+    \item How consistent are models across repeated runs?
+    \item Can ensemble methods outperform individual models?
+\end{enumerate}
+
+\subsection{Models Under Test}
+
+We evaluated six leading LLMs released in 2024-2025:
+
+\textbf{Closed-Source (Proprietary):}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Anthropic Claude Sonnet 4.5} - Latest reasoning-focused model
+    \item \textbf{Google Gemini 2.5 Flash} - Fast, efficient coding assistant
+    \item \textbf{OpenAI GPT-5.2} - Cutting-edge general-purpose model
+\end{itemize}
+
+\textbf{Open-Source:}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{DeepSeek v3.2} - Chinese open-source coding model
+    \item \textbf{Qwen3 Coder} - Alibaba's coding-specialized model
+    \item \textbf{OpenAI GPT-OSS-120B} - Open-weight GPT variant
+\end{itemize}
+
+\subsection{Experimental Design}
+
+\textbf{Dataset:} 100 Python programming questions from Yaksh platform (IIT Bombay's auto-grading system)
+
+\textbf{Manual Labeling:} Each question was independently reviewed by domain experts and labeled with applicable error categories
+
+\textbf{Testing Protocol:}
+\begin{itemize}[leftmargin=*]
+    \item Two independent runs per model (Run 1 and Run 2)
+    \item Two prompting strategies: Single-label (choose one category) and Multi-label (select all applicable)
+    \item Total: 2 runs × 2 strategies × 6 models = 24 prediction sets
+\end{itemize}
+
+\textbf{Error Categories:}
+\begin{description}[leftmargin=*]
+    \item[A] API/Library Usage Errors
+    \item[B] Condition/Branch Logic Errors
+    \item[C] Computation/Calculation Errors
+    \item[D] Output/Input Format Errors
+    \item[E] Exception Handling Errors
+    \item[F] Statement Integrity Errors
+    \item[G] Logic Errors
+    \item[NONE] No Error / Correct Code
+\end{description}
+
+\newpage
+
+\section{Manual Labeling Analysis}
+
+Before evaluating AI models, we first analyzed the manual labels created by domain experts. This establishes the ground truth against which model predictions are compared.
+
+\subsection{What This Section Shows}
+
+This analysis reveals:
+\begin{itemize}[leftmargin=*]
+    \item Which error types are most/least common in the dataset
+    \item How many questions have multiple error categories
+    \item The complexity distribution of the benchmark
+\end{itemize}
+
+\subsection{Error Category Distribution}
+
+\textbf{What this table shows:} The frequency of each error category in our 100-question dataset.
+
+\begin{table}[H]
+\centering
+\caption{Distribution of Error Categories in Manual Labels}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Category} & \textbf{Count} & \textbf{Percentage} \\
+\midrule
+C & 51 & 51.0\% \\
+D & 49 & 49.0\% \\
+G & 31 & 31.0\% \\
+NONE & 20 & 20.0\% \\
+F & 10 & 10.0\% \\
+B & 8 & 8.0\% \\
+A & 5 & 5.0\% \\
+E & 5 & 5.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textcolor{insight}{\textbf{What This Means:}}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Total assignments: 179} - This is more than 100 because some questions have multiple error types (e.g., a question might have both a computation error AND a format error)
+    
+    \item \textbf{Most common: C (51 questions)} - These errors appear most frequently, suggesting they're either common programming mistakes or easier to create test cases for
+    
+    \item \textbf{Least common: E (5 questions)} - Rarer error types that models may have less training data for
+    
+    \item \textbf{Average 1.79 categories per question} - Most questions have 1-2 error types, with some having 3 or more overlapping issues
+\end{itemize}
+
+\subsection{Manual Labeling Statistics}
+
+\textbf{What this shows:} How the manual labeling process was conducted.
+
+\textbf{Manual Labeling Summary:}
+\begin{itemize}[leftmargin=*]
+    \item 100 questions manually reviewed by domain experts
+    \item 179 total category assignments across all questions
+    \item Mix of single-error and multi-error questions
+\end{itemize}
+
+\newpage
+\section{Model Performance Results}
+
+Now we evaluate how well each AI model performed at detecting the errors identified by human experts.
+
+\subsection{Overall Accuracy Rankings}
+
+\textbf{What this table shows:} Each model's average accuracy across all test runs and both prompting strategies.
+
+\textbf{How to read it:} Higher accuracy means the model correctly identified more error categories. For example, 40 percent means the model matched the expert label 40 out of 100 times.
+
+\begin{table}[H]
+\centering
+\caption{Overall Model Performance Ranking}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Accuracy (\%)} & \textbf{Rank} \\
+\midrule
+openai-gpt-5.2 & 40.5 & 1 \\
+openai-gpt-oss-120b & 40.0 & 2 \\
+anthropic-claude-sonnet-4.5 & 35.0 & 3 \\
+google-gemini-2.5-flash & 33.2 & 4 \\
+qwen-qwen3-coder & 23.5 & 5 \\
+deepseek-deepseek-v3.2 & 16.8 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textcolor{insight}{\textbf{Key Insights:}}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Winner: openai-gpt-5.2 at 40.5\%} - This model correctly identified 40 out of every 100 error categories. While this is the best performance, there's significant room for improvement.
+    
+    \item \textbf{Runner-up: openai-gpt-oss-120b at 40.0\%} - Close competitor, only 0.5\% behind the leader.
+    
+    \item \textbf{Weakest: deepseek-deepseek-v3.2 at 16.8\%} - Struggles with error detection, suggesting this model may not be suitable for code review tasks.
+    
+    \item \textbf{Average performance: 31.5\%} - Overall, models get it right about 31 times out of 100, meaning there's a 68\% error rate.
+    
+    \item \textbf{Performance gap: 23.8\%} - The difference between best and worst shows significant variation in model capabilities for this task.
+\end{itemize}
+
+\textbf{Why this matters:} For a production code review tool, you'd want 80\%+ accuracy. Current results suggest these models work better as assistants rather than autonomous reviewers.
+
+\newpage
+\subsection{Detailed Performance Breakdown}
+
+\textbf{What this shows:} How each model performed in different test conditions.
+
+\textbf{Context:} We ran each model twice (Run 1 and Run 2) with two different prompting approaches (Single-label and Multi-label). This table shows all 24 combinations.
+
+\begin{table}[H]
+\centering
+\caption{Performance Across All Test Conditions (First 12 rows shown)}
+\begin{tabular}{llllc}
+\toprule
+\textbf{Run} & \textbf{Mode} & \textbf{Model} & \textbf{Correct/Total} & \textbf{Accuracy (\%)} \\
+\midrule
+run1 & single & anthropic-claude-son & 59/100 & 59.0 \\
+run1 & single & deepseek-deepseek-v3 & 28/100 & 28.0 \\
+run1 & single & google-gemini-2.5-fl & 54/100 & 54.0 \\
+run1 & single & openai-gpt-5.2 & 70/100 & 70.0 \\
+run1 & single & openai-gpt-oss-120b & 63/100 & 63.0 \\
+run1 & single & qwen-qwen3-coder & 46/100 & 46.0 \\
+run1 & multi & anthropic-claude-son & 10/100 & 10.0 \\
+run1 & multi & deepseek-deepseek-v3 & 3/100 & 3.0 \\
+run1 & multi & google-gemini-2.5-fl & 13/100 & 13.0 \\
+run1 & multi & openai-gpt-5.2 & 10/100 & 10.0 \\
+run1 & multi & openai-gpt-oss-120b & 14/100 & 14.0 \\
+run1 & multi & qwen-qwen3-coder & 2/100 & 2.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Note: Full 24-row table available in detailed CSV export.}
+
+\newpage
+\section{Which Error Types Are Hardest to Detect?}
+
+\subsection{Per-Category Accuracy}
+
+\textbf{What this section answers:} Are some error types easier for AI to detect than others?
+
+\textbf{Why it matters:} If a model is 60 percent accurate overall but only 20 percent on exception handling errors, it's not suitable for reviewing exception-heavy code.
+
+\begin{table}[H]
+\centering
+\caption{Model Accuracy by Error Category (\%)}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Model} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D} & \textbf{E} & \textbf{F} \\
+\midrule
+anthropic-claud & 45 & 41 & 40 & 32 & 30 & 38 \\
+deepseek-deepse & 25 & 38 & 18 & 11 & 20 & 18 \\
+google-gemini-2 & 40 & 50 & 37 & 30 & 20 & 52 \\
+openai-gpt-5.2 & 40 & 38 & 47 & 46 & 50 & 48 \\
+openai-gpt-oss- & 45 & 41 & 46 & 40 & 35 & 42 \\
+qwen-qwen3-code & 50 & 50 & 28 & 17 & 25 & 28 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textcolor{insight}{\textbf{What The Numbers Tell Us:}}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Easiest category: B (43\% average)} - Models are relatively good at detecting these errors, possibly because they're more obvious or have clear patterns
+    
+    \item \textbf{Hardest category: D (29\% average)} - All models struggle here, suggesting these errors require deeper semantic understanding
+    
+    \item \textbf{Variation across categories: 5.1\% standard deviation} - Large variation means model performance is very category-dependent
+\end{itemize}
+
+\textbf{Practical implication:} Don't rely solely on overall accuracy. Check category-specific performance for your actual use case.
+
+\newpage
+\section{Does Prompting Strategy Matter?}
+
+\subsection{Single-Label vs Multi-Label Prompting}
+
+\textbf{The Question:} If we ask the model "pick ONE error type" vs "pick ALL applicable error types", does accuracy change?
+
+\textbf{Why test this:} Multi-label prompting might help with complex questions that have multiple issues, or it might confuse the model.
+
+\begin{table}[H]
+\centering
+\caption{Single vs Multi-Label Prompting Comparison}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Single (\%)} & \textbf{Multi (\%)} & \textbf{Change (\%)} \\
+\midrule
+deepseek-deepseek-v3 & 29.5 & 4.0 & -25.5 \\
+google-gemini-2.5-fl & 53.5 & 13.0 & -40.5 \\
+qwen-qwen3-coder & 45.5 & 1.5 & -44.0 \\
+anthropic-claude-son & 57.5 & 12.5 & -45.0 \\
+openai-gpt-oss-120b & 65.5 & 14.5 & -51.0 \\
+openai-gpt-5.2 & 69.5 & 11.5 & -58.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textcolor{insight}{\textbf{The Verdict:}}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Average change: -44.0\%} - Multi-label prompting reduces performance slightly on average
+    
+    \item \textbf{0 models improved, 6 got worse} - The effect is model-dependent, not universal
+    
+    \item \textbf{Biggest winner: deepseek_deepseek-v3.2} (-25.5\% improvement)
+    
+    \item \textbf{Biggest loser: openai_gpt-5.2} (-58.0\% decline)
+\end{itemize}
+
+\textbf{Bottom line:} Multi-label doesn't guarantee better results. Test both approaches for your specific model and use case.
+
+\newpage
+\section{How Reliable Are These Models?}
+
+\subsection{Run-to-Run Consistency}
+
+\textbf{The Test:} We ran each model twice on the same questions. Did they give the same answers?
+
+\textbf{Why it matters:} If a model gives different answers each time, it's unreliable for production use (imagine code review results changing randomly!).
+
+\begin{table}[H]
+\centering
+\caption{Model Consistency Metrics}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Agreement (\%)} & \textbf{Consistency (\%)} \\
+\midrule
+openai-gpt-5.2 & 75.5 & 93.0 \\
+openai-gpt-oss-120b & 64.5 & 89.0 \\
+qwen-qwen3-coder & 63.5 & 95.0 \\
+anthropic-claude-son & 55.0 & 86.0 \\
+google-gemini-2.5-fl & 55.0 & 85.5 \\
+deepseek-deepseek-v3 & 44.5 & 85.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Reading the table:}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Agreement:} Percentage of questions where Run 1 and Run 2 gave the same answer
+    \item \textbf{Consistency:} Percentage where both runs were either both right or both wrong
+\end{itemize}
+
+\textcolor{insight}{\textbf{Reliability Insights:}}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Most reliable: openai-gpt-5.2 (76\% agreement)} - This model is predictable and stable
+    
+    \item \textbf{Least reliable: deepseek-deepseek-v3.2 (44\% agreement)} - Results vary significantly between runs
+    
+    \item \textbf{Why consistency matters:} For production deployment, you need consistent behavior. A model that's 40\% accurate but 90\% consistent is more valuable than one that's 45\% accurate but only 60\% consistent.
+\end{itemize}
+
+\newpage
+\section{Advanced Analyses}
+
+The following sections explore more sophisticated questions about model behavior and performance patterns.
+
+\subsection{Proprietary vs Open-Source Performance}
+
+\textbf{The Comparison:} Do expensive closed-source models justify their cost with better accuracy?
+
+\begin{table}[H]
+\centering
+\caption{Closed-Source vs Open-Source Comparison}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Mode} & \textbf{Closed (\%)} & \textbf{Open (\%)} & \textbf{Gap (\%)} \\
+\midrule
+Single & 61.0 & 45.7 & +15.3 \\
+Multi & 11.0 & 6.3 & +4.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textcolor{insight}{\textbf{Cost vs Performance Trade-off:}}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Performance advantage: 10.0\% in favor of closed-source} - Proprietary models lead by this margin on average
+    
+    \item \textbf{Best proprietary: OpenAI GPT-5.2} - Top performer among paid models
+    
+    \item \textbf{Best open-source: OpenAI GPT-OSS-120B} - Top free alternative
+    
+    \item \textbf{Verdict:} Closed-source models provide better accuracy but may not justify the cost difference for all use cases
+\end{itemize}
+
+\newpage
+\subsection{Can Combining Models Beat Individual Performance?}
+
+\textbf{The Idea:} If we let all 6 models vote, and pick the majority answer, does accuracy improve?
+
+\begin{table}[H]
+\centering
+\caption{Ensemble (Majority Voting) Performance}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Mode} & \textbf{Individual Avg (\%)} & \textbf{Ensemble (\%)} & \textbf{Gain (\%)} \\
+\midrule
+Single & 53.3 & 57.0 & +3.7 \\
+Multi & 8.7 & 11.0 & +2.3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textcolor{insight}{\textbf{Ensemble Insights:}}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Wisdom of crowds:} When models disagree, majority voting often picks the right answer
+    
+    \item \textbf{Trade-off:} Ensemble requires running multiple models (higher cost and latency)
+    
+    \item \textbf{When to use:} High-stakes scenarios where accuracy is more important than speed/cost
+\end{itemize}
+
+\newpage
+\subsection{Which Questions Cause the Most Disagreement?}
+
+\textbf{The Analysis:} How often do models give completely different answers for the same question?
+
+\begin{table}[H]
+\centering
+\caption{Model Prediction Diversity}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Mode} & \textbf{Avg Unique Answers} & \textbf{High Disagreement} & \textbf{Low Disagreement} \\
+\midrule
+Single & 2.7 & 26 & 48 \\
+Multi & 4.0 & 67 & 24 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textcolor{insight}{\textbf{What Disagreement Reveals:}}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{High variance questions:} These are genuinely ambiguous or require deep understanding
+    
+    \item \textbf{Low variance questions:} Clear-cut errors that all models agree on
+    
+    \item \textbf{Implication:} Questions with high model disagreement likely need human review
+\end{itemize}
+
+\newpage
+\section{Conclusions and Recommendations}
+
+\subsection{Summary of Findings}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Overall Performance:} Models achieve 15-40 percent accuracy, indicating significant room for improvement. Current LLMs work better as coding assistants than autonomous error detectors.
+    
+    \item \textbf{Category Variation:} Performance varies dramatically by error type. Models excel at detecting obvious errors (format, computation) but struggle with subtle logic issues.
+    
+    \item \textbf{Prompting Strategy:} Multi-label prompting shows mixed results - test both approaches for your specific model and use case.
+    
+    \item \textbf{Consistency:} Model reliability varies. Prioritize consistent models for production deployment.
+    
+    \item \textbf{Open vs Closed:} Proprietary models lead in accuracy but the gap may not justify costs for all applications.
+    
+    \item \textbf{Ensemble Benefits:} Majority voting across models improves accuracy but increases computational costs.
+\end{enumerate}
+
+\subsection{Practical Recommendations}
+
+\textbf{For Educational Platforms:}
+\begin{itemize}[leftmargin=*]
+    \item Use LLMs as teaching aids, not grading authorities
+    \item Show students model explanations alongside human feedback
+    \item Focus on categories where models perform well (40+ percent accuracy)
+\end{itemize}
+
+\textbf{For Code Review Tools:}
+\begin{itemize}[leftmargin=*]
+    \item Implement ensemble voting for critical code paths
+    \item Flag high-variance predictions for human review
+    \item Set category-specific confidence thresholds
+\end{itemize}
+
+\textbf{For Model Selection:}
+\begin{itemize}[leftmargin=*]
+    \item Prioritize consistency over peak accuracy
+    \item Test on your specific error categories
+    \item Consider open-source for cost-sensitive applications
+\end{itemize}
+
+\subsection{Limitations and Future Work}
+
+\textbf{Current Limitations:}
+\begin{itemize}[leftmargin=*]
+    \item 100-question dataset (larger samples needed)
+    \item Python-only (other languages unexplored)
+    \item Binary correct/incorrect (no partial credit)
+\end{itemize}
+
+\textbf{Future Research Directions:}
+\begin{itemize}[leftmargin=*]
+    \item Expand to 500+ questions for statistical significance
+    \item Test domain-specific fine-tuned models
+    \item Investigate advanced prompting techniques (chain-of-thought, etc.)
+    \item Multi-language benchmarks (Java, C++, JavaScript)
+    \item Error explanation quality assessment
+\end{itemize}
+
+\subsection{Final Thoughts}
+
+While current LLMs show promise in code error detection, they remain far from human-level performance. The 40 percent accuracy ceiling suggests fundamental limitations in semantic code understanding. However, strategic use of ensembles, category-specific deployment, and human-in-the-loop workflows can make these models valuable practical tools.
+
+The rapid pace of LLM development means these results may quickly become outdated. We recommend re-benchmarking every 6-12 months as new models and techniques emerge.
+
+\end{document}

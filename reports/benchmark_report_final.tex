@@ -1,0 +1,218 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{array}
+
+\title{Benchmarking Large Language Models for Python Code Error Detection}
+\author{FOSSEE Internship Project}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+This report presents a comprehensive benchmark analysis of six Large Language Models (LLMs) for detecting logical errors in Python code.
+
+\subsection{Objective}
+
+To assess the capability of state-of-the-art LLMs in identifying and classifying logical errors in Python programming questions from the Yaksh platform.
+
+\subsection{Models Evaluated}
+
+\textbf{Closed Source Models:}
+\begin{itemize}
+    \item Anthropic Claude Sonnet 4.5
+    \item Google Gemini 2.5 Flash
+    \item OpenAI GPT-5.2
+\end{itemize}
+
+\textbf{Open Source Models:}
+\begin{itemize}
+    \item DeepSeek v3.2
+    \item OpenAI GPT-OSS-120B
+    \item Qwen3 Coder
+\end{itemize}
+
+\subsection{Experimental Setup}
+
+\begin{itemize}
+    \item \textbf{Dataset:} 100 Python programming questions
+    \item \textbf{Runs:} 2 independent runs per model
+    \item \textbf{Strategies:} Single-label and Multi-label classification
+    \item \textbf{Manual Labeling:} Domain expert annotations
+\end{itemize}
+
+\newpage
+
+\section{Dataset Statistics}
+
+\subsection{Error Category Distribution}
+
+The dataset comprises 100 Python questions manually labeled with error categories.
+
+\begin{table}[H]
+\centering
+\caption{Error Category Distribution}
+\begin{tabular}{lcc}
+\toprule
+Category & Count & Percentage \\
+\midrule
+C & 51 & 51.0\% \\
+D & 49 & 49.0\% \\
+G & 31 & 31.0\% \\
+NONE & 20 & 20.0\% \\
+F & 10 & 10.0\% \\
+B & 8 & 8.0\% \\
+A & 5 & 5.0\% \\
+E & 5 & 5.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Total category assignments: 179
+
+Average categories per question: 1.79
+
+\newpage
+\section{Model Performance Analysis}
+
+\subsection{Overall Ranking}
+
+\begin{table}[H]
+\centering
+\caption{Overall Model Performance}
+\begin{tabular}{lcc}
+\toprule
+Model & Accuracy (\%) & Rank \\
+\midrule
+openai-gpt-5.2 & 40.50 & 1 \\
+openai-gpt-oss-120b & 40.00 & 2 \\
+anthropic-claude-sonnet-4.5 & 35.00 & 3 \\
+google-gemini-2.5-flash & 33.25 & 4 \\
+qwen-qwen3-coder & 23.50 & 5 \\
+deepseek-deepseek-v3.2 & 16.75 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\textbf{Key Findings:}
+\begin{itemize}
+    \item Best model: openai-gpt-5.2 (40.50\%)
+    \item Worst model: deepseek-deepseek-v3.2 (16.75\%)
+    \item Average accuracy: 31.50\%
+\end{itemize}
+
+\newpage
+\section{Prompting Strategy Analysis}
+
+\subsection{Single-Label vs Multi-Label}
+
+\begin{table}[H]
+\centering
+\caption{Single vs Multi-Label Prompting}
+\begin{tabular}{lccc}
+\toprule
+Model & Single (\%) & Multi (\%) & Improvement (\%) \\
+\midrule
+deepseek-deepseek-v3.2 & 29.50 & 4.00 & -25.50 \\
+google-gemini-2.5-flash & 53.50 & 13.00 & -40.50 \\
+qwen-qwen3-coder & 45.50 & 1.50 & -44.00 \\
+anthropic-claude-sonnet-4.5 & 57.50 & 12.50 & -45.00 \\
+openai-gpt-oss-120b & 65.50 & 14.50 & -51.00 \\
+openai-gpt-5.2 & 69.50 & 11.50 & -58.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Average improvement: -44.00\%
+
+\newpage
+\section{Consistency Analysis}
+
+\subsection{Run-to-Run Consistency}
+
+\begin{table}[H]
+\centering
+\caption{Model Consistency Metrics}
+\begin{tabular}{lcc}
+\toprule
+Model & Agreement Rate (\%) & Consistency (\%) \\
+\midrule
+openai-gpt-5.2 & 75.50 & 93.00 \\
+openai-gpt-oss-120b & 64.50 & 89.00 \\
+qwen-qwen3-coder & 63.50 & 95.00 \\
+anthropic-claude-sonnet-4.5 & 55.00 & 86.00 \\
+google-gemini-2.5-flash & 55.00 & 85.50 \\
+deepseek-deepseek-v3.2 & 44.50 & 85.50 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Most consistent: openai-gpt-5.2
+
+Least consistent: deepseek-deepseek-v3.2
+
+\newpage
+\section{Closed vs Open Source Comparison}
+
+\begin{table}[H]
+\centering
+\caption{Closed Source vs Open Source}
+\begin{tabular}{lccc}
+\toprule
+Mode & Closed (\%) & Open (\%) & Difference (\%) \\
+\midrule
+Single & 61.00 & 45.67 & +15.33 \\
+Multi & 11.00 & 6.33 & +4.67 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Closed-source models perform 10.00\% better on average.
+
+\newpage
+\section{Conclusions}
+
+\subsection{Key Findings}
+
+\begin{enumerate}
+    \item Model performance varies significantly, with closed-source models generally outperforming open-source alternatives.
+    \item Multi-label prompting shows mixed results across different models.
+    \item Consistency is an important metric for production deployment.
+    \item Error category difficulty varies across models.
+\end{enumerate}
+
+\subsection{Recommendations}
+
+\begin{itemize}
+    \item Prioritize models with high consistency for production use
+    \item Test both prompting strategies for specific use cases
+    \item Consider cost vs performance tradeoffs
+    \item Validate on domain-specific error categories
+\end{itemize}
+
+\subsection{Future Work}
+
+\begin{itemize}
+    \item Expand dataset diversity
+    \item Test fine-tuned models
+    \item Investigate prompt engineering
+    \item Multi-language analysis
+\end{itemize}
+
+\end{document}

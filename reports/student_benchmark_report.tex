@@ -1,0 +1,393 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{array}
+\usepackage{enumitem}
+
+\title{\textbf{Testing AI Models for Finding Errors in Python Code} \\ 
+       \large A Benchmark Study on 100 Programming Questions}
+\author{FOSSEE Internship Project}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+In this project, I tested 6 different AI models to see how good they are at finding errors in Python code. I took 100 programming questions and first labeled them manually with the type of errors present. Then I ran all 6 AI models on these questions and compared their answers with my manual labels. This report shows which models work best, what types of errors are hardest to detect, and whether different prompting methods make a difference.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\subsection{What This Project Is About}
+
+I wanted to find out if AI models like ChatGPT and Claude can actually spot programming errors correctly. This is important because:
+
+\begin{itemize}[leftmargin=*]
+    \item Educational platforms could use AI to help students find bugs in their code
+    \item Code review tools could automatically flag potential issues
+    \item It helps us understand what AI is good at and what it still struggles with
+\end{itemize}
+
+\subsection{The Main Questions I Tried to Answer}
+
+\begin{enumerate}[leftmargin=*]
+    \item Which AI model is best at finding Python code errors?
+    \item Are some types of errors easier to detect than others?
+    \item Does asking the model differently (single vs multiple labels) change accuracy?
+    \item Are these models consistent, or do they give different answers each time?
+\end{enumerate}
+
+\subsection{AI Models I Tested}
+
+I chose 6 popular models that came out in 2024-2025:
+
+\textbf{Paid/Closed-Source Models:}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Claude Sonnet 4.5} (by Anthropic)
+    \item \textbf{Gemini 2.5 Flash} (by Google)
+    \item \textbf{GPT-5.2} (by OpenAI)
+\end{itemize}
+
+\textbf{Free/Open-Source Models:}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{DeepSeek v3.2}
+    \item \textbf{Qwen3 Coder}
+    \item \textbf{GPT-OSS-120B}
+\end{itemize}
+
+\subsection{How I Did the Testing}
+
+\textbf{Dataset:} 100 Python programming questions from Yaksh (IIT Bombay's coding platform)
+
+\textbf{Manual Work:} I went through each question and labeled what type of error it had
+
+\textbf{Testing Setup:}
+\begin{itemize}[leftmargin=*]
+    \item Ran each model twice (to check consistency)
+    \item Tried two different ways of asking: "pick one error type" vs "pick all that apply"
+    \item Total combinations: 2 runs x 2 prompting styles x 6 models = 24 test runs
+\end{itemize}
+
+\subsection{Error Categories I Used}
+
+Based on common programming mistakes, I classified errors into these types:
+
+\begin{description}[leftmargin=*]
+    \item[A - Loop Condition] Incorrect loops in for/while statements
+    \item[B - Condition Branch] Wrong expression in if conditions
+    \item[C - Statement Integrity] Code missing parts of logical structure
+    \item[D - Output/Input Format] Incorrect cin/cout or print/input statements
+    \item[E - Variable Initialization] Wrong variable declarations
+    \item[F - Data Type] Incorrect data types used
+    \item[G - Computation] Wrong math operators or calculations
+    \item[NONE] No error (code is correct)
+\end{description}
+
+\textbf{Note:} Some questions had multiple error types at once.
+
+\newpage
+
+\section{My Manual Labeling Results}
+
+Before testing AI models, I first manually reviewed all 100 questions and labeled them myself. This gives us the "ground truth" to compare AI predictions against.
+
+\subsection{Distribution of Error Types}
+
+Here's what I found when going through the code samples:
+
+\begin{table}[H]
+\centering
+\caption{How Many Questions Had Each Error Type}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Error Type} & \textbf{Count} & \textbf{Percentage} \\
+\midrule
+C & 51 & 51.0\% \\
+D & 49 & 49.0\% \\
+G & 31 & 31.0\% \\
+NONE & 20 & 20.0\% \\
+F & 10 & 10.0\% \\
+B & 8 & 8.0\% \\
+A & 5 & 5.0\% \\
+E & 5 & 5.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{What I Noticed:}
+
+\begin{itemize}[leftmargin=*]
+    \item The total adds up to 179, which is more than 100 because some questions had multiple error types
+    
+    \item Most common error: \textbf{C} appeared in 51 questions
+    
+    \item Least common: \textbf{E} only appeared 5 times
+    
+    \item On average, each question had about 1.8 error types
+\end{itemize}
+
+This shows the dataset has a good mix of different error types, though some are more common than others.
+
+\newpage
+\section{AI Model Performance Results}
+
+Now let's see how the AI models did when I asked them to find these errors.
+
+\subsection{Overall Rankings}
+
+I averaged the results from all test runs to get each model's overall accuracy:
+
+\begin{table}[H]
+\centering
+\caption{Which Model Performed Best?}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Accuracy (\%)} & \textbf{Rank} \\
+\midrule
+openai-gpt-5.2 & 40.5 & 1 \\
+openai-gpt-oss-120b & 40.0 & 2 \\
+anthropic-claude-sonnet-4.5 & 35.0 & 3 \\
+google-gemini-2.5-flash & 33.2 & 4 \\
+qwen-qwen3-coder & 23.5 & 5 \\
+deepseek-deepseek-v3.2 & 16.8 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{My Observations:}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Winner: openai-gpt-5.2} got 40.5\% correct. That means it matched my labels about 40 times out of 100.
+    
+    \item \textbf{Last place: deepseek-deepseek-v3.2} only got 16.8\% right.
+    
+    \item The average across all models was 31.5\%, which honestly isn't that great. It means models are wrong about 68\% of the time.
+    
+    \item The gap between best and worst is 23.8\%, showing big differences in model capabilities.
+\end{itemize}
+
+\textbf{What this tells us:} These models aren't reliable enough to use alone for grading code. They're better as helpers that suggest possible issues, but humans still need to verify.
+
+\newpage
+\section{Which Error Types Are Hardest to Detect?}
+
+I wanted to know if models struggle with certain error types more than others.
+
+\subsection{Accuracy by Error Category}
+
+This table shows how each model did on different error types:
+
+\begin{table}[H]
+\centering
+\caption{Model Accuracy on Different Error Types (\%)}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Model} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D} & \textbf{E} & \textbf{F} \\
+\midrule
+anthropic-claud & 45 & 41 & 40 & 32 & 30 & 38 \\
+deepseek-deepse & 25 & 38 & 18 & 11 & 20 & 18 \\
+google-gemini-2 & 40 & 50 & 37 & 30 & 20 & 52 \\
+openai-gpt-5.2 & 40 & 38 & 47 & 46 & 50 & 48 \\
+openai-gpt-oss- & 45 & 41 & 46 & 40 & 35 & 42 \\
+qwen-qwen3-code & 50 & 50 & 28 & 17 & 25 & 28 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Findings:}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Easiest: B} - Models got this right 43\% of the time on average. These errors are probably more obvious.
+    
+    \item \textbf{Hardest: D} - Only 29\% accuracy here. All models struggled with this type.
+    
+    \item Performance varies a lot depending on error type, so you can't just look at overall accuracy.
+\end{itemize}
+
+\newpage
+\section{Does Prompting Style Matter?}
+
+I tried two ways of asking the models:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Single-label:} "Pick ONE error type"
+    \item \textbf{Multi-label:} "Pick ALL error types that apply"
+\end{itemize}
+
+Let's see if this made a difference.
+
+\begin{table}[H]
+\centering
+\caption{Single vs Multi-Label Results}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Single (\%)} & \textbf{Multi (\%)} & \textbf{Change (\%)} \\
+\midrule
+deepseek-deepseek-v3 & 29.5 & 4.0 & -25.5 \\
+google-gemini-2.5-fl & 53.5 & 13.0 & -40.5 \\
+qwen-qwen3-coder & 45.5 & 1.5 & -44.0 \\
+anthropic-claude-son & 57.5 & 12.5 & -45.0 \\
+openai-gpt-oss-120b & 65.5 & 14.5 & -51.0 \\
+openai-gpt-5.2 & 69.5 & 11.5 & -58.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{What I Found:}
+
+\begin{itemize}[leftmargin=*]
+    \item On average, multi-label hurt by 44.0\%
+    
+    \item But it's not consistent - some models got better, others got worse
+    
+    \item This suggests you need to test both approaches for your specific model
+\end{itemize}
+
+\newpage
+\section{Are Models Consistent?}
+
+I ran each model twice on the same questions. If a model gives different answers each time, that's a problem for real-world use.
+
+\begin{table}[H]
+\centering
+\caption{How Often Models Gave the Same Answer Twice}
+\begin{tabular}{lc}
+\toprule
+\textbf{Model} & \textbf{Agreement Rate (\%)} \\
+\midrule
+openai-gpt-5.2 & 75.5 \\
+openai-gpt-oss-120b & 64.5 \\
+qwen-qwen3-coder & 63.5 \\
+anthropic-claude-son & 55.0 \\
+google-gemini-2.5-fl & 55.0 \\
+deepseek-deepseek-v3 & 44.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Results:}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Most reliable: openai-gpt-5.2} gave the same answer 76\% of the time
+    
+    \item \textbf{Least reliable: deepseek-deepseek-v3.2} only matched 44\% of the time
+    
+    \item For production use, you want high consistency. A model that's slightly less accurate but way more consistent is better.
+\end{itemize}
+
+\newpage
+\section{Paid vs Free Models}
+
+Are expensive proprietary models worth the cost, or can free open-source models compete?
+
+\begin{table}[H]
+\centering
+\caption{Closed-Source vs Open-Source Comparison}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Mode} & \textbf{Paid Models (\%)} & \textbf{Free Models (\%)} & \textbf{Difference (\%)} \\
+\midrule
+Single & 61.0 & 45.7 & +15.3 \\
+Multi & 11.0 & 6.3 & +4.7 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{My Take:}
+
+\begin{itemize}[leftmargin=*]
+    \item Paid models win by 10.0\% on average
+    
+    \item For budget-conscious projects, the gap might not justify the cost
+    
+    \item If accuracy is critical and budget allows, go paid. Otherwise, open-source is decent.
+\end{itemize}
+
+\newpage
+\section{Can Combining Models Help?}
+
+What if instead of using one model, I let all 6 vote and pick the majority answer?
+
+\begin{table}[H]
+\centering
+\caption{Voting Ensemble Results}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Mode} & \textbf{Avg Individual (\%)} & \textbf{Ensemble (\%)} & \textbf{Improvement (\%)} \\
+\midrule
+Single & 53.3 & 57.0 & +3.7 \\
+Multi & 8.7 & 11.0 & +2.3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Conclusion:}
+
+\begin{itemize}[leftmargin=*]
+    \item Voting helps! When models agree, they're usually right.
+    \item But you need to run 6 models instead of 1, which costs more time and money.
+    \item Good for high-stakes situations where accuracy matters most.
+\end{itemize}
+
+\newpage
+\section{Final Thoughts}
+
+\subsection{What I Learned}
+
+\begin{enumerate}[leftmargin=*]
+    \item Current AI models are okay at finding code errors but far from perfect. 40 percent accuracy means they're wrong 60 percent of the time.
+    
+    \item Some error types (like format issues) are easier to spot than others (like subtle logic bugs).
+    
+    \item Prompting strategy matters, but not uniformly across all models.
+    
+    \item Consistency varies a lot between models - some give random answers each time.
+    
+    \item Paid models are slightly better but not by a huge margin.
+    
+    \item Combining multiple models through voting can boost accuracy.
+\end{enumerate}
+
+\subsection{Practical Advice}
+
+\textbf{For students using AI to debug code:}
+\begin{itemize}[leftmargin=*]
+    \item Don't trust AI blindly - it gets things wrong often
+    \item Use it as a suggestion tool, not an answer key
+    \item Cross-check with multiple models if possible
+\end{itemize}
+
+\textbf{For developers building code review tools:}
+\begin{itemize}[leftmargin=*]
+    \item Test your chosen model on your specific error categories
+    \item Prioritize consistent models over slightly more accurate but unpredictable ones
+    \item Consider ensemble methods for critical applications
+\end{itemize}
+
+\subsection{What Could Be Done Better}
+
+This was a good start, but there's room for improvement:
+
+\begin{itemize}[leftmargin=*]
+    \item Bigger dataset (100 questions is okay but 500+ would be better)
+    \item Test on other programming languages besides Python
+    \item Try advanced prompting techniques like chain-of-thought
+    \item Evaluate the quality of error explanations, not just category labels
+\end{itemize}
+
+\subsection{Bottom Line}
+
+AI models show promise for code error detection but aren't ready to replace human reviewers. They work best as assistive tools that flag potential issues for human verification. As these models continue to improve, we'll need to keep re-testing to see if accuracy gets better.
+
+For now, use them wisely - they're helpful but not foolproof.
+
+\end{document}
