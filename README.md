@@ -60,17 +60,18 @@ A comparative study evaluating six Large Language Models on detecting logical er
 
 
 ## 🗂️ Repository Structure
-
+```
 ├── data/
-│ ├── exports/ # Analysis outputs & visualizations
-│ ├── manual_labels/ # Ground truth annotations
-│ ├── processed/ # Cleaned datasets
-│ └── raw/ # Original 100 code samples
-├── reports/ # Final benchmarking report (PDF)
-├── results_run1/ # First evaluation run
-├── results_run2/ # Second evaluation run
-├── scripts/ # Analysis scripts
+│    ├── exports/           # Analysis outputs & visualizations
+│    ├── manual_labels/     # Ground truth annotations
+│    ├── processed/         # Cleaned datasets
+│    └── raw/               # Original 100 code samples
+├── reports/                # Final benchmarking report (PDF)
+├── results_run1/           # First evaluation run
+├── results_run2/           # Second evaluation run
+├── scripts/                # Analysis scripts
 └── README.md
+```
 
 
 ## 🔬 Evaluation Metrics
@@ -89,7 +90,7 @@ A comparative study evaluating six Large Language Models on detecting logical er
 
     # Run benchmark
     cd scripts/
-    python run_benchmark.py --models all --runs 2 --modes      single,multi 
+    python run_benchmark.py --models all --runs 2 --modes single,multi 
 ```
 
 
