@@ -82,17 +82,6 @@ A comparative study evaluating six Large Language Models on detecting logical er
 - **Pairwise Agreement** - Inter-model similarity
 - **Run-to-Run Agreement** - Intra-model consistency
 
-## 🚀 Getting Started
-
-```bash
-    # Install dependencies
-    pip install pandas numpy scikit-learn matplotlib seaborn
-
-    # Run benchmark
-    cd scripts/
-    python run_benchmark.py --models all --runs 2 --modes single,multi 
-```
-
 
 # Conclusion: 
 Current LLMs demonstrate partial competence (83.2% partial correctness) but remain unsuitable for autonomous classification (31.5% average accuracy). Models excel at structural pattern recognition but struggle with semantic understanding, showing 48pp performance variation across categories and 44.6pp drop in multi-label mode. The 76pp gap between exact match and partial overlap metrics indicates these models function best as assistive screening tools requiring human oversight, not replacements for expert judgment.
